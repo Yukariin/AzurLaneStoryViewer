@@ -32,7 +32,7 @@ export default class Story {
     }
 
     load() {
-        this.assetloader.add('story', 'S004.json'); // TODO: dinamyc loading
+        this.assetloader.add('story', 'story/S004.json'); // TODO: dinamyc loading
         this.assetloader.load((loader, resources) => {
             let story = resources['story'].data;
 
