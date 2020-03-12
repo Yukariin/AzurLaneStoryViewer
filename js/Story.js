@@ -1,6 +1,7 @@
 import { Application, Loader } from 'pixi.js';
 
 import StageController from './StageController';
+import { getNameAndPainting } from './utils';
 
 const DEFAULT_WIDTH = 960;
 const DEFAULT_HEIGHT = 540;
@@ -45,6 +46,14 @@ export default class Story {
                 if (step.subBgName && !loaded.includes(step.subBgName)) {
                     this.assetloader.add(step.subBgName.name, `images/bg/${step.subBgName.name}.png`);
                     loaded.push(step.subBgName);
+                }
+
+                if ((step.mode || story.mode) == 2 && step.actor && !step.withoutPainting) {
+                    let [,actorName] = getNameAndPainting(step);
+                    if (!loaded.includes(actorName)) {
+                        this.assetloader.add(actorName, `images/painting/${actorName}.png`);
+                        loaded.push(actorName);
+                    }
                 }
             });
 

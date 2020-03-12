@@ -1,10 +1,11 @@
 import { gsap } from 'gsap';
 import * as PIXI from 'pixi.js';
 
+import ActorController from './ActorController';
 import DialogController from './DialogController';
 import ViewController from './ViewController';
 import PixiPlugin from './PixiPlugin'
-import hsv2rgb from './utils';
+import { getNameAndPainting, hsv2rgb } from './utils';
 
 const STORY_MODE = {
     ASIDE: 1,
@@ -28,6 +29,7 @@ export default class StageController {
         if (!instance) {
             this.story = story;
 
+            this.actorController = new ActorController(this.story);
             this.dialogController = new DialogController(this.story);
             this.viewController = new ViewController(this.story);
 
@@ -39,6 +41,7 @@ export default class StageController {
             this.blankScreen = false;
             this.preBg = null;
             this.preStep = null;
+            this.targetActor = null;
 
             gsap.registerPlugin(PixiPlugin);
 
@@ -227,7 +230,7 @@ export default class StageController {
     }
 
     initAside(step) {
-        var aside_text = (!step.asideType || step.asideType == 1) ? this.dialogController.aside_text1 : this.dialogController.aside_text2
+        let aside_text = (!step.asideType || step.asideType == 1) ? this.dialogController.aside_text1 : this.dialogController.aside_text2
         aside_text.visible = true;
         
         this.viewController.hideSubBG();
@@ -238,7 +241,7 @@ export default class StageController {
 
         let tl = gsap.timeline({onComplete: ()=>{ this.interactive = true; }});
 
-        var speed = step.bgSpeed || 0.5;
+        let speed = step.bgSpeed || 0.5;
         if (step.bgFade && this.preBg) {
             this.interactive = false;
             tl.to(
@@ -260,9 +263,10 @@ export default class StageController {
             this.interactive = true;
         } else {
             this.dialogController.hideDialogueAll();
+            this.actorController.hideAll();
         }
 
-        var write = () => {
+        let write = () => {
             let delay = 0;
             for (let aisdeData of step.sequence || []) {
                 delay = aisdeData[1];
@@ -330,10 +334,12 @@ export default class StageController {
         this.dialogController.hideAsideDate();
         this.dialogController.loadDialogue();
 
-        var speed = step.bgSpeed || 0.5;
+        let tl = gsap.timeline();
+
+        let speed = step.bgSpeed || 0.5;
         if (step.bgFade && this.preBg) {
             this.interactive = false;
-            gsap.to(
+            tl.to(
                 [this.viewController.bg1,this.viewController.bg2],
                 speed,
                 {alpha: 0, onComplete: ()=>{
@@ -359,19 +365,22 @@ export default class StageController {
         }
 
         let side = step.side || 0;
-        if (side == ACTOR_SIDE.CENTER) side = ACTOR_SIDE.LEFT;
-        let nameText = (side == ACTOR_SIDE.LEFT) ? this.dialogController.name_left_text : this.dialogController.name_right_text;
-        if (side == ACTOR_SIDE.LEFT && (step.actor || step.actorName) && !step.withoutActorName) {
+        let [targetName, targetNameText, targetActor] = this.getTargetActor(side);
+
+        this.actorController.actor_left.visibile = (targetActor === this.actorController.actor_left && step.actor);
+        this.actorController.actor_middle.visibile = (targetActor === this.actorController.actor_middle && step.actor);
+        this.actorController.actor_right.visibile = (targetActor === this.actorController.actor_right && step.actor);
+        if (targetName == this.dialogController.name_left && (step.actor || step.actorName) && !step.withoutActorName) {
             this.dialogController.loadNameLeft();
             this.dialogController.loadNameLeftText();
         } else {
             this.dialogController.hideNameLeft();
             this.dialogController.hideNameLeftText();
         }
-        if (side == ACTOR_SIDE.RIGHT && (step.actor || step.actorName) && !step.withoutActorName) {
+        if (targetName == this.dialogController.name_right && (step.actor || step.actorName) && !step.withoutActorName) {
             this.dialogController.loadNameRight();
             this.dialogController.loadNameRightText();
-        } else{
+        } else {
             this.dialogController.hideNameRight();
             this.dialogController.hideNameRightText();
         }
@@ -381,29 +390,62 @@ export default class StageController {
         if (step.actor) {
             let settings = step.painting || {};
             let nameTint = (step.nameColor) ? PIXI.utils.string2hex(step.nameColor) : 0xffffff;
-            nameText.tint = nameTint;
-            nameText.text = step.actor;
+            let [name,painting] = getNameAndPainting(step);
+            targetNameText.tint = nameTint;
+            targetNameText.text = name;
 
             if (!step.withoutPainting) {
                 if (this.preStep && step.paintingFadeOut) {
                     this.interactive = false;
+                    targetActor.visibile = false;
+                    this.dialogController.hideDialogueAll();
+                    // painting fade out
+                    targetActor.visibile = true;
+                    this.dialogController.loadDialogueAll();
                     this.interactive = true;
+                }
+
+                let tex = this.story.assetloader.resources[painting].texture;
+                this.actorController.load(targetActor, tex);
+
+                if (this.preStep && (this.preStep.side == side)) {
+                    if (side != ACTOR_SIDE.CENTER) {
+                        let [,,target] = this.getTargetActor(side);
+                        target.visible = true;
+                        return;
+                    }
+                }
+
+                if (this.targetActor && (side != ACTOR_SIDE.CENTER) && !step.hideOther) {
+                    this.targetActor.visible = true;
+                    // painting fade
+                }
+                if (this.targetActor !== targetActor) {
+                    // painting fade
+                    this.targetActor = targetActor;
                 }
 
                 if (step.shake) {
                     let x = step.shake.x || 0;
-                    let y = step.shake.y || 0;
+                    let y = step.shake.y || 10;
+                    let pos_x = targetActor.x;
+                    let pos_y = targetActor.y;
+                    let speed = (step.shake.speed || 1) / (step.shake.number || 1);
+                    tl.to(targetActor, speed, {x: pos_x+x, y: pos_y+y, repeat: step.shake.number || 1, onComplete: ()=>{
+                        targetActor.x = pos_x;
+                        targetActor.y = pos_y;
+                    }});
                 }
             }
         } else {
             if (step.actorName) {
                 let nameTint = (step.nameColor) ? PIXI.utils.string2hex(step.nameColor) : 0xffffff;
-                nameText.tint = nameTint;
-                nameText.text = step.actorName;
+                targetNameText.tint = nameTint;
+                targetNameText.text = name;
             }
         }
 
-        var write = () => {
+        let write = () => {
             this.dialogController.content.text = step.say || '...';
         };
 
@@ -519,6 +561,7 @@ export default class StageController {
                 }
             });
             this.dialogController.hideDialogueAll();
+            this.actorController.hideAll();
         }
 
         if (step.subBgName) {
@@ -535,8 +578,9 @@ export default class StageController {
 
         let nameText = (side == ACTOR_SIDE.LEFT) ? this.dialogController.name_left_text : this.dialogController.name_right_text;
         let nameTint = (step.nameColor) ? PIXI.utils.string2hex(step.nameColor) : 0xffffff;
+        let [name,] = getNameAndPainting(step);
         nameText.tint = nameTint;
-        nameText.text = step.actorName || step.actor;
+        nameText.text = name;
     }
 
     setEffects(effects) {
@@ -565,8 +609,10 @@ export default class StageController {
         if (this.dialogController.aside_text2.visibile)
             gsap.to(this.dialogController.aside_text2, time, {alpha: 0});
 
-        if (this.dialogController.dialogue.visibile)
+        if (this.dialogController.dialogue.visibile) {
             this.dialogController.hideDialogueAll();
+            this.actorController.hideAll();
+        }
     }
 
     flashin(step, callback = ()=>{}) {
@@ -594,5 +640,23 @@ export default class StageController {
             if (callback) callback();
             this.inflashout = false;
         }});
+    }
+
+    getTargetActor(side) {
+        let targetName, targetNameText, targetActor;
+        if (side == ACTOR_SIDE.LEFT) {
+            targetName = this.dialogController.name_left;
+            targetNameText = this.dialogController.name_left_text;
+            targetActor = this.actorController.actor_left;
+        } else if (side == ACTOR_SIDE.RIGHT) {
+            targetName = this.dialogController.name_right;
+            targetNameText = this.dialogController.name_right_text;
+            targetActor = this.actorController.actor_right;
+        } else if (side == ACTOR_SIDE.CENTER) {
+            targetName = this.dialogController.name_left;
+            targetNameText = this.dialogController.name_left_text;
+            targetActor = this.actorController.actor_middle;
+        }
+        return [targetName, targetNameText, targetActor];
     }
 } 

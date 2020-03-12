@@ -7,9 +7,6 @@ export default class ViewController {
         if (!instance) {
             this.story = story;
 
-            this.bg = new Container();
-            this.story.app.stage.addChild(this.bg);
-
             this.flash = new Sprite(Texture.WHITE);
             this.flash.zIndex = 3;
             this.flash.width = this.story.app.renderer.width;
