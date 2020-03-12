@@ -1,0 +1,1 @@
+{"id":"XINGCHEN4","scripts":[{"stopbgm":true,"mode":1,"sequence":[["星の歌姫と小さな勇気\n\n<size=45>その四  星の歌姫さまへ<\/size>",1]]},{"flashin":{"alpha":[1,0],"delay":1,"black":true,"dur":1},"flashout":{"alpha":[0,1],"black":true,"dur":1},"bgName":"bg_story_star2","blackBg":true}],"fadeOut":1.5,"occlusion":0.8,"mode":3,"once":true}
