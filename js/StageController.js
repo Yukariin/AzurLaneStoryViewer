@@ -1,11 +1,11 @@
 import { gsap } from 'gsap';
-import * as PIXI from 'pixi.js';
 import PixiPlugin from 'gsap/PixiPlugin';
+import * as PIXI from 'pixi.js';
 
 import ActorController from './ActorController';
 import DialogController from './DialogController';
 import ViewController from './ViewController';
-import { getNameAndPainting, hsv2rgb } from './utils';
+import { getNameAndPainting } from './utils';
 
 const STORY_MODE = {
     ASIDE: 1,
@@ -134,7 +134,7 @@ export default class StageController {
                     }
                     if (step.flashN) {
                         let target = this.viewController.flash;
-                        target.tint = 0xffffff; // TODO: set color from step!
+                        target.tint = (step.flashN.color) ? PIXI.utils.rgb2hex([step.flashN.color[0],step.flashN.color[1],step.flashN.color[2]]) : 0xffffff;
                         this.viewController.loadFlash();
                         for (let v of step.flashN.alpha) {
                             tl.fromTo(target, v[2], {alpha: v[0]}, {alpha: v[1], delay: v[3] || 0});
@@ -169,9 +169,7 @@ export default class StageController {
                 }
             }
 
-            if (!story.continueBgm) {
-            
-            }
+            if (!story.continueBgm) {}
 
             if (!stop && story.fadeOut) {
                 if (story.noWaitFade) {
@@ -195,7 +193,7 @@ export default class StageController {
         }
         it = (nextIter.bind(this))();
 
-        this.story.element.addEventListener('click', () => {
+        this.story.app.view.addEventListener('click', () => {
             if (!this.interactive) return;
             if (this.inflashin) return;
             if (this.inflashout) return;
@@ -222,10 +220,10 @@ export default class StageController {
         this.preBg = null;
 
         this.viewController.hideAll();
-        this.dialogController.hideAll();
+        this.dialogController.hideDialogueAll();
         this.actorController.hideAll();
 
-        gsap.to(this.story.app.stage, 0, {alpha: 174/255});
+        //gsap.to(this.story.app.stage, 0, {alpha: 174/255});
 
         if (callback)
             callback();
@@ -261,8 +259,12 @@ export default class StageController {
 
         if (this.preStep && step.paintingFadeOut) {
             this.interactive = false;
-            //paintingFadeOut
-            this.interactive = true;
+            this.paintingFadeOut(this.preStep, step, ()=>{
+                this.interactive = true;
+                this.dialogController.hideDialogueAll();
+                this.actorController.hideAll();
+            });
+
         } else {
             this.dialogController.hideDialogueAll();
             this.actorController.hideAll();
@@ -306,14 +308,14 @@ export default class StageController {
 
         if (step.bgName) {
             this.viewController.hideBG();
+            let tex = this.story.assetloader.resources[step.bgName].texture;
+            let bg = (step.useBg2) ? this.viewController.bg2 : this.viewController.bg1;
+            bg.alpha = 1;
+            bg.tint = 0xffffff;
             if (step.useBg2) {
-                this.viewController.bg2.alpha = 1;
-                this.viewController.bg2.tint = 0xffffff;
-                this.viewController.loadBG2(this.story.assetloader.resources[step.bgName].texture);
+                this.viewController.loadBG2(tex);
             } else {
-                this.viewController.bg1.alpha = 1;
-                this.viewController.bg1.tint = 0xffffff;
-                this.viewController.loadBG1(this.story.assetloader.resources[step.bgName].texture);
+                this.viewController.loadBG1(tex);
             }
         }
 
@@ -332,7 +334,7 @@ export default class StageController {
         this.dialogController.hideAside1();
         this.dialogController.hideAside2();
         this.dialogController.hideAsideDate();
-        this.dialogController.loadDialogue();
+        this.dialogController.loadDialogueAll();
 
         if (step.bgFade && this.preBg) {
             let speed = step.bgSpeed || 0.5;
@@ -438,12 +440,12 @@ export default class StageController {
                 if (step.shake) {
                     let x = step.shake.x || 0;
                     let y = step.shake.y || 10;
-                    let pos_x = targetActor.x;
-                    let pos_y = targetActor.y;
+                    let local_x = targetActor.x;
+                    let local_y = targetActor.y;
                     let speed = (step.shake.speed || 1) / (step.shake.number || 1);
-                    gsap.to(targetActor, speed, {x: pos_x+x, y: pos_y+y, repeat: step.shake.number || 1, onComplete: ()=>{
-                        targetActor.x = pos_x;
-                        targetActor.y = pos_y;
+                    gsap.to(targetActor, speed, {x: local_x+x, y: local_y+y, repeat: step.shake.number || 1, onComplete: ()=>{
+                        targetActor.x = local_x;
+                        targetActor.y = local_y;
                     }});
                 }
             }
@@ -478,6 +480,7 @@ export default class StageController {
         this.dialogController.hideAside1();
         this.dialogController.hideAside2();
         this.viewController.hideCurtain();
+        this.actorController.hideAll();
 
         if (step.blackBg) {
             this.viewController.loadCurtain();
@@ -574,12 +577,13 @@ export default class StageController {
         }
 
         if (step.subBgName) {
+            let tex = this.story.assetloader.resources[step.subBgName.name].texture;
             let anchors = step.subBgName.anchors || [0.5,0.5,0.5,0.5];
             let pivot = step.subBgName.pivot || [0.5,0.5];
             let pos = step.subBgName.pos || [0,0];
             this.viewController.sub.anchor.set(anchors[0], anchors[2]);
             this.viewController.sub.position.set(pos[0], pos[1]);
-            this.viewController.loadSubBG(this.story.assetloader.resources[step.subBgName.name].texture);
+            this.viewController.loadSubBG(tex);
         }
 
         this.dialogController.content.text = step.say || '...';

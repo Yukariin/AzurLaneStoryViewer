@@ -9,17 +9,14 @@ export function getNameAndPainting(step) {
     if (!actor) {
         // do nothing
     } else if (actor > 0) {
-        if (SkinConfig[actor]) {
-            name = SkinConfig[actor].name;
-            painting = SkinConfig[actor].painting;
-        } else {
-            name = "？？？？？";
-            painting = "unknown1";
-        }
+        name = SkinConfig[actor].name;
+        painting = SkinConfig[actor].painting;
     } else if (actor == 0) {
         name = '指揮官';
         painting = 'unknown';
     } else if (actor == -1) {
+        name = '指揮官';
+        // painting flagship?
     }
 
     if (step.actorName)

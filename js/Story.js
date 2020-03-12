@@ -1,6 +1,7 @@
 import { Application, Loader } from 'pixi.js';
 
 import StageController from './StageController';
+import StoryConfig from './StoryConfig';
 import { getNameAndPainting } from './utils';
 
 const DEFAULT_WIDTH = 960;
@@ -17,14 +18,26 @@ export default class Story {
             this.app.view.id = 'story-canvas';
             this.app.stage.sortableChildren = true;
 
-            this.overlay = document.getElementById('story-overlay');
-
             this.assetloader = new Loader();
             this.assetloader.add('storyui', 'images/storyui.json')
 
             this.stageController = null;
 
-            this.load();
+            this.locale = 'jp';
+            this.element.querySelector('#locale-jp').onclick = ()=>{ this.locale = 'jp'; };
+            this.element.querySelector('#locale-cn').onclick = ()=>{ this.locale = 'cn'; };
+            this.element.querySelector('#locale-en').onclick = ()=>{ this.locale = 'en'; };
+
+            let select = this.element.querySelector('#story-select');
+            for (let val in StoryConfig) {
+                let opt = document.createElement('option');
+                opt.value = StoryConfig[val];
+                opt.innerHTML = val;
+                select.appendChild(opt);
+            }
+            select.onchange = (e)=>{
+                this.load(e.target.value, this.locale);
+            };
 
             instance = this;
         }
@@ -32,32 +45,28 @@ export default class Story {
         return instance;
     }
 
-    load() {
-        this.assetloader.add('story', 'story/S004.json'); // TODO: dinamyc loading
+    load(storyID, locale) {
+        this.assetloader.add(storyID, `story/${locale}/${storyID}.json`)
         this.assetloader.load((loader, resources) => {
-            let story = resources['story'].data;
+            let story = resources[storyID].data;
 
-            let loaded = [];
             story.scripts.forEach((step) => {
-                if (step.bgName && !loaded.includes(step.bgName)) {
+                if (step.bgName && !(step.bgName in resources)) {
                     this.assetloader.add(step.bgName, `images/bg/${step.bgName}.png`);
-                    loaded.push(step.bgName);
                 }
-                if (step.subBgName && !loaded.includes(step.subBgName)) {
+                if (step.subBgName && !(step.subBgName in resources)) {
                     this.assetloader.add(step.subBgName.name, `images/bg/${step.subBgName.name}.png`);
-                    loaded.push(step.subBgName);
                 }
 
                 if ((step.mode || story.mode) == 2 && step.actor && !step.withoutPainting) {
                     let [,actorName] = getNameAndPainting(step);
-                    if (!loaded.includes(actorName)) {
+                    if (!(actorName in resources)) {
                         this.assetloader.add(actorName, `images/painting/${actorName}.png`);
-                        loaded.push(actorName);
                     }
                 }
             });
 
-            this.assetloader.load(this.loadComplete.bind(this))
+            this.assetloader.load(this.loadComplete.bind(this, storyID))
 
             this.assetloader.onProgress.add((loader, resource) => {
                 console.log(`load progress: ${loader.progress}%`);
@@ -65,10 +74,10 @@ export default class Story {
         });
     }
 
-    loadComplete() {
+    loadComplete(storyID) {
         this.stageController = new StageController(this)
         this.stageController.load();
-        this.stageController.play(this.assetloader.resources['story'].data);
+        this.stageController.play(this.assetloader.resources[storyID].data);
 
         this.app.ticker.start();
     }
