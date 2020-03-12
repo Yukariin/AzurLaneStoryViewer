@@ -81,7 +81,7 @@ export default class DialogController {
             console.log(this.aside_sign_date);
             this.story.app.stage.addChild(this.aside_sign_date);
             
-            this.content = new Text('content', {fontSize: 16, fill: 'white', align: 'left'});
+            this.content = new Text('content', {fontSize: 16, fill: 'white', breakWords: true, wordWrap: true, wordWrapWidth: this.dialogue.width*0.9});
             this.content.zIndex = 2;
             this.content.anchor.set(0.5);
             this.content.x = this.dialogue.width/2;
@@ -199,12 +199,12 @@ export default class DialogController {
     }
     
     loadDialogueAll() {
-        this.dialogue.visible = this.dialogue_cache;
+        this.dialogue.visible = true;
         this.next.visible = this.next_cache;
         this.name_left.visible = this.name_left_cache;
         this.name_right.visible = this.name_right_cache;
 
-        this.content.visible = this.content_cache;
+        this.content.visible = true;
         this.name_left_text.visible = this.name_left_text_cache;
         this.name_right_text.visible = this.name_right_text_cache;
     }
