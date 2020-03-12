@@ -405,25 +405,30 @@ export default class StageController {
                     this.interactive = true;
                 }
 
-                let tex = this.story.assetloader.resources[painting].texture;
-                this.actorController.load(targetActor, tex);
+                let loadPainting = () => {
+                    let tex = this.story.assetloader.resources[painting].texture;
+                    this.actorController.load(targetActor, tex);
+                    targetActor.tint = (step.actorShadow) ? 0x999999 : 0xffffff;
 
-                if (this.preStep && (this.preStep.side == side)) {
-                    if (side != ACTOR_SIDE.CENTER) {
-                        let [,,target] = this.getTargetActor(side);
-                        target.visible = true;
-                        return;
+                    if (this.preStep && (this.preStep.side == side)) {
+                        if (side != ACTOR_SIDE.CENTER) {
+                            let [,,target] = this.getTargetActor(side);
+                            target.visible = true;
+                            return;
+                        }
                     }
-                }
 
-                if (this.targetActor && (side != ACTOR_SIDE.CENTER) && !step.hideOther) {
-                    this.targetActor.visible = true;
-                    // painting fade
-                }
-                if (this.targetActor !== targetActor) {
-                    // painting fade
-                    this.targetActor = targetActor;
-                }
+                    if (this.targetActor && (side != ACTOR_SIDE.CENTER) && !step.hideOther) {
+                        this.targetActor.visible = true;
+                        // painting fade
+                    }
+                    if (this.targetActor !== targetActor) {
+                        // painting fade
+                        this.targetActor = targetActor;
+                    }
+                };
+
+                loadPainting();
 
                 if (step.shake) {
                     let x = step.shake.x || 0;
