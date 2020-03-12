@@ -1,10 +1,10 @@
 import { gsap } from 'gsap';
 import * as PIXI from 'pixi.js';
+import PixiPlugin from 'gsap/PixiPlugin';
 
 import ActorController from './ActorController';
 import DialogController from './DialogController';
 import ViewController from './ViewController';
-import PixiPlugin from './PixiPlugin'
 import { getNameAndPainting, hsv2rgb } from './utils';
 
 const STORY_MODE = {
@@ -43,6 +43,7 @@ export default class StageController {
             this.preStep = null;
             this.targetActor = null;
 
+            PixiPlugin.registerPIXI(PIXI);
             gsap.registerPlugin(PixiPlugin);
 
             instance = this;
@@ -318,12 +319,10 @@ export default class StageController {
 
         if (step.bgShadow) {
             let bg = (step.useBg2) ? this.viewController.bg2 : this.viewController.bg1;
-            let fro = step.bgShadow[0];
+            let from = step.bgShadow[0];
             let to = step.bgShadow[1];
             let speed = step.bgShadow[2];
-            tl.fromTo(bg, speed, {brightness: fro}, {brightness: to});
-            //tint = PIXI.utils.rgb2hex(hsv2rgb(v,v,v));
-            //gsap.fromTo(bg, speed, {tint: fro}, {tint: to});
+            gsap.fromTo(bg, speed, {pixi:{tint: PIXI.utils.rgb2hex([from,from,from])}}, {pixi:{tint: PIXI.utils.rgb2hex([to,to,to])}});
         }
     }
 
@@ -659,9 +658,9 @@ export default class StageController {
 //             gsap.killTweensOf(actor);
 
         this.interactive = false;
-        gsap.fromTo(actor, time, {alpha: from}, {alpha: to, onComplete: ()=>{
+        gsap.fromTo(actor, time, {pixi:{tint: PIXI.utils.rgb2hex([from,from,from])}}, {pixi:{tint: PIXI.utils.rgb2hex([to,to,to]), onComplete: ()=>{
             this.interactive = true;
-        }});
+        }}});
     }
 
     paintingFadeOut(preStep, step, callback) {
