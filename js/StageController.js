@@ -222,6 +222,7 @@ export default class StageController {
 
         this.viewController.hideAll();
         this.dialogController.hideAll();
+        this.actorController.hideAll();
 
         gsap.to(this.story.app.stage, 0, {alpha: 174/255});
 
@@ -334,12 +335,10 @@ export default class StageController {
         this.dialogController.hideAsideDate();
         this.dialogController.loadDialogue();
 
-        let tl = gsap.timeline();
-
-        let speed = step.bgSpeed || 0.5;
         if (step.bgFade && this.preBg) {
+            let speed = step.bgSpeed || 0.5;
             this.interactive = false;
-            tl.to(
+            gsap.to(
                 [this.viewController.bg1,this.viewController.bg2],
                 speed,
                 {alpha: 0, onComplete: ()=>{
@@ -353,31 +352,31 @@ export default class StageController {
 
         if (step.bgName) {
             this.viewController.hideBG();
+            let tex = this.story.assetloader.resources[step.bgName].texture;
+            let bg = (step.useBg2) ? this.viewController.bg2 : this.viewController.bg1;
+            bg.alpha = 1;
+            bg.tint = 0xffffff;
             if (step.useBg2) {
-                this.viewController.bg2.alpha = 1;
-                this.viewController.bg2.tint = 0xffffff;
-                this.viewController.loadBG2(this.story.assetloader.resources[step.bgName].texture);
+                this.viewController.loadBG2(tex);
             } else {
-                this.viewController.bg1.alpha = 1;
-                this.viewController.bg1.tint = 0xffffff;
-                this.viewController.loadBG1(this.story.assetloader.resources[step.bgName].texture);
+                this.viewController.loadBG1(tex);
             }
         }
 
         let side = step.side || 0;
         let [targetName, targetNameText, targetActor] = this.getTargetActor(side);
 
-        this.actorController.actor_left.visibile = (targetActor === this.actorController.actor_left && step.actor);
-        this.actorController.actor_middle.visibile = (targetActor === this.actorController.actor_middle && step.actor);
-        this.actorController.actor_right.visibile = (targetActor === this.actorController.actor_right && step.actor);
-        if (targetName == this.dialogController.name_left && (step.actor || step.actorName) && !step.withoutActorName) {
+        this.actorController.actor_left.visibile = (step.actor && (targetActor === this.actorController.actor_left));
+        this.actorController.actor_middle.visibile = (step.actor && (targetActor === this.actorController.actor_middle));
+        this.actorController.actor_right.visibile = (step.actor && (targetActor === this.actorController.actor_right));
+        if (targetName === this.dialogController.name_left && (step.actor || step.actorName) && !step.withoutActorName) {
             this.dialogController.loadNameLeft();
             this.dialogController.loadNameLeftText();
         } else {
             this.dialogController.hideNameLeft();
             this.dialogController.hideNameLeftText();
         }
-        if (targetName == this.dialogController.name_right && (step.actor || step.actorName) && !step.withoutActorName) {
+        if (targetName === this.dialogController.name_right && (step.actor || step.actorName) && !step.withoutActorName) {
             this.dialogController.loadNameRight();
             this.dialogController.loadNameRightText();
         } else {
@@ -399,31 +398,38 @@ export default class StageController {
                     this.interactive = false;
                     targetActor.visibile = false;
                     this.dialogController.hideDialogueAll();
-                    // painting fade out
-                    targetActor.visibile = true;
-                    this.dialogController.loadDialogueAll();
-                    this.interactive = true;
+
+                    this.paintingFadeOut(this.preStep, step, ()=>{
+                        this.interactive = true;
+                        targetActor.visibile = true;
+                        this.dialogController.loadDialogueAll();
+                    });
                 }
 
                 let loadPainting = () => {
                     let tex = this.story.assetloader.resources[painting].texture;
                     this.actorController.load(targetActor, tex);
-                    targetActor.tint = (step.actorShadow) ? 0x999999 : 0xffffff;
+                    // TODO: implement shadow
 
-                    if (this.preStep && (this.preStep.side == side)) {
-                        if (side != ACTOR_SIDE.CENTER) {
-                            let [,,target] = this.getTargetActor(side);
-                            target.visible = true;
+//                     let scale = step.actorScale || 1;
+//                     let dir = (step.dir && step.dir < 0) ? -1 : 1;
+//                     console.log(scale, dir, dir*scale);
+
+                    if (this.preStep && (this.preStep.side == step.side)) {
+                        if (step.side != ACTOR_SIDE.CENTER) {
+                            targetActor.visible = true;
                             return;
                         }
                     }
 
-                    if (this.targetActor && (side != ACTOR_SIDE.CENTER) && !step.hideOther) {
+                    let alpha = settings.alpha || DEFAULT_PAINT_ALPHA;
+                    let time = settings.time || DEFAULT_PAINT_FADE_TIME;
+                    if (this.targetActor && (step.side != ACTOR_SIDE.CENTER) && !step.hideOther) {
                         this.targetActor.visible = true;
-                        // painting fade
+                        this.setFade(this.targetActor, 1, alpha, time); // fade out old actor
                     }
                     if (this.targetActor !== targetActor) {
-                        // painting fade
+                        this.setFade(targetActor, alpha, 1, time); // fade in new actor
                         this.targetActor = targetActor;
                     }
                 };
@@ -436,7 +442,7 @@ export default class StageController {
                     let pos_x = targetActor.x;
                     let pos_y = targetActor.y;
                     let speed = (step.shake.speed || 1) / (step.shake.number || 1);
-                    tl.to(targetActor, speed, {x: pos_x+x, y: pos_y+y, repeat: step.shake.number || 1, onComplete: ()=>{
+                    gsap.to(targetActor, speed, {x: pos_x+x, y: pos_y+y, repeat: step.shake.number || 1, onComplete: ()=>{
                         targetActor.x = pos_x;
                         targetActor.y = pos_y;
                     }});
@@ -455,7 +461,6 @@ export default class StageController {
         };
 
         if (step.flashin) {
-            console.log('step.flashin!');
             this.flashin(step, ()=>{ write(); });
         } else {
             write();
@@ -645,6 +650,46 @@ export default class StageController {
             if (callback) callback();
             this.inflashout = false;
         }});
+    }
+
+    setFade(actor, from, to, time) {
+        actor.tint = 0xffffff;
+
+//         if (gsap.isTweening(actor))
+//             gsap.killTweensOf(actor);
+
+        this.interactive = false;
+        gsap.fromTo(actor, time, {alpha: from}, {alpha: to, onComplete: ()=>{
+            this.interactive = true;
+        }});
+    }
+
+    paintingFadeOut(preStep, step, callback) {
+        let settings = step.painting || {};
+        if (preStep.side == step.side) {
+            if (callback) {
+                callback();
+                return;
+            }
+        }
+
+        //let scale = preStep.actorScale || 1;
+        //let dir = (preStep.dir && preStep.dir < 0) ? -1 : 1;
+        //console.log(scale, dir, dir*scale);
+        let [,,fadeTarget] = this.getTargetActor(preStep.side);
+        let local_x = fadeTarget.x;
+        fadeTarget.visibile = true;
+
+        let targetSide = step.paintingFadeOut.side;
+        let time = step.paintingFadeOut.time;
+        let [,,target] = this.getTargetActor(targetSide);
+
+        gsap.to(fadeTarget, time, {x: target.x, onComplete: ()=>{
+            if (callback) callback();
+            fadeTarget.visibile = false;
+            fadeTarget.x = local_x;
+        }});
+        this.setFade(fadeTarget, 1, settings.alpha || DEFAULT_PAINT_ALPHA, time);
     }
 
     getTargetActor(side) {
