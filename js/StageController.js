@@ -109,12 +109,9 @@ export default class StageController {
 
                     if (step.bgm) {
                         if (step.bgmDelay) {
-                            
                         } else {
-                            
                         }
                     } else if (step.stopbgm) {
-                        
                     }
 
                     let tl = gsap.timeline();
@@ -124,9 +121,10 @@ export default class StageController {
                         this.viewController.loadFlash();
 
                         for (let j = 1; j <= step.flash.number; j++) {
-                            let dur = (step.flash.dur) ? step.flash.dur/2 : step.flash.dur1;
-                            tl.fromTo(target, dur, {alpha: step.flash.alpha[0]}, {alpha: step.flash.alpha[1], delay: (j-1)*step.flash.delay});
-                            tl.fromTo(target, dur, {alpha: step.flash.alpha[1]}, {alpha: step.flash.alpha[0], delay: step.flash.wait, onComplete: ()=>{
+                            let dur1 = (step.flash.dur) ? step.flash.dur/2 : step.flash.dur1;
+                            let dur2 = (step.flash.dur) ? step.flash.dur/2 : step.flash.dur2;
+                            tl.fromTo(target, dur1, {alpha: step.flash.alpha[0]}, {alpha: step.flash.alpha[1], delay: (j-1)*step.flash.delay});
+                            tl.fromTo(target, dur2, {alpha: step.flash.alpha[1]}, {alpha: step.flash.alpha[0], delay: step.flash.wait, onComplete: ()=>{
                                 if (j >= step.flash.number)
                                     this.viewController.hideFlash();
                             }});
@@ -134,7 +132,8 @@ export default class StageController {
                     }
                     if (step.flashN) {
                         let target = this.viewController.flash;
-                        target.tint = (step.flashN.color) ? PIXI.utils.rgb2hex([step.flashN.color[0],step.flashN.color[1],step.flashN.color[2]]) : 0xffffff;
+                        let c = step.flashN.color;
+                        target.tint = (c) ? PIXI.utils.rgb2hex([c[0],c[1],c[2]]) : 0xffffff;
                         this.viewController.loadFlash();
                         for (let v of step.flashN.alpha) {
                             tl.fromTo(target, v[2], {alpha: v[0]}, {alpha: v[1], delay: v[3] || 0});
@@ -145,7 +144,8 @@ export default class StageController {
                         this.interactive = false;
                         let target = [this.dialogController.dialogue];
                         let delay = step.dialogShake.delay || 0;
-                        tl.to(target, step.dialogShake.speed,{x: step.dialogShake.x, delay: delay, repeat: step.dialogShake.number, onComplete: ()=>{
+                        let speed = step.dialogShake.speed / step.dialogShake.number;
+                        tl.to(target, speed, {x: step.dialogShake.x, delay: delay, repeat: step.dialogShake.number, onComplete: ()=>{
                             this.dialogController.dialogue.x = 0;
                             this.interactive = true;
                         }});
