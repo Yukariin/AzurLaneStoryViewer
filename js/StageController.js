@@ -72,14 +72,23 @@ export default class StageController {
                 if (stop && !step.compulsory) {
                     // do nothing
                 } else{
-                    this.viewController.hideFlash();
                     stop = false;
+                    let next = true;
+                    this.viewController.hideFlash();
                     let mode = step.mode || story.mode;
                     if (mode == STORY_MODE.ASIDE) {
                         if (step.flashout) {
-                            this.flashout(step, () => { this.initAside(step); });
+                            this.flashout(step, () => {
+                                this.initAside(step);
+                                if ((step.sequence || []).length == 0) {
+                                    next = false;
+                                }
+                            });
                         } else {
                             this.initAside(step);
+                            if ((step.sequence || []).length == 0) {
+                                next = false;
+                            }
                         }
                     } else if (mode == STORY_MODE.DIALOG) {
                         if (step.flashout) {
@@ -120,9 +129,9 @@ export default class StageController {
                         target.tint = (step.flash.black) ? 0x000000 : 0xffffff;
                         this.viewController.loadFlash();
 
+                        let dur1 = (step.flash.dur) ? step.flash.dur/2 : step.flash.dur1;
+                        let dur2 = (step.flash.dur) ? step.flash.dur/2 : step.flash.dur2;
                         for (let j = 1; j <= step.flash.number; j++) {
-                            let dur1 = (step.flash.dur) ? step.flash.dur/2 : step.flash.dur1;
-                            let dur2 = (step.flash.dur) ? step.flash.dur/2 : step.flash.dur2;
                             tl.fromTo(target, dur1, {alpha: step.flash.alpha[0]}, {alpha: step.flash.alpha[1], delay: (j-1)*step.flash.delay});
                             tl.fromTo(target, dur2, {alpha: step.flash.alpha[1]}, {alpha: step.flash.alpha[0], delay: step.flash.wait, onComplete: ()=>{
                                 if (j >= step.flash.number)
@@ -136,7 +145,7 @@ export default class StageController {
                         target.tint = (c) ? PIXI.utils.rgb2hex([c[0],c[1],c[2]]) : 0xffffff;
                         this.viewController.loadFlash();
                         for (let v of step.flashN.alpha) {
-                            tl.fromTo(target, v[2], {alpha: v[0]}, {alpha: v[1], delay: v[3] || 0});
+                            tl.fromTo(target, v[2], {alpha: v[0]}, {alpha: v[1], delay: (v[3] || 0)});
                         }
                     }
 
@@ -144,8 +153,7 @@ export default class StageController {
                         this.interactive = false;
                         let target = [this.dialogController.dialogue];
                         let delay = step.dialogShake.delay || 0;
-                        let speed = step.dialogShake.speed / step.dialogShake.number;
-                        tl.to(target, speed, {x: step.dialogShake.x, delay: delay, repeat: step.dialogShake.number, onComplete: ()=>{
+                        tl.to(target, step.dialogShake.speed, {x: step.dialogShake.x, delay: delay, repeat: step.dialogShake.number, onComplete: ()=>{
                             this.dialogController.dialogue.x = 0;
                             this.interactive = true;
                         }});
@@ -158,12 +166,13 @@ export default class StageController {
                     }
 
                     if (step.movie) {
-                        continue;
+                        next = true;
                     }
 
                     let skip = step.skip || 0;
 
-                    yield step;
+                    if (next)
+                        yield step;
                 }
             }
 
@@ -367,11 +376,11 @@ export default class StageController {
         }
 
         let side = step.side || 0;
-        let [targetName, targetNameText, targetActor] = this.getTargetActor(side);
+        let [targetName, targetNameText, targetActor,] = this.getTargetActor(side);
 
-        this.actorController.actor_left.visibile = (step.actor && (targetActor === this.actorController.actor_left));
-        this.actorController.actor_middle.visibile = (step.actor && (targetActor === this.actorController.actor_middle));
-        this.actorController.actor_right.visibile = (step.actor && (targetActor === this.actorController.actor_right));
+        this.actorController.actor_left.visible = (step.actor && (targetActor === this.actorController.actor_left));
+        this.actorController.actor_middle.visible = (step.actor && (targetActor === this.actorController.actor_middle));
+        this.actorController.actor_right.visible = (step.actor && (targetActor === this.actorController.actor_right));
         if (targetName === this.dialogController.name_left && (step.actor || step.actorName) && !step.withoutActorName) {
             this.dialogController.loadNameLeft();
             this.dialogController.loadNameLeftText();
@@ -389,7 +398,7 @@ export default class StageController {
 
         if (step.actorPosition) {}
 
-        if (step.actor) {
+        if ('actor' in step) {
             let settings = step.painting || {};
             let nameTint = (step.nameColor) ? PIXI.utils.string2hex(step.nameColor) : 0xffffff;
             let [name,painting] = getNameAndPainting(step);
@@ -399,12 +408,12 @@ export default class StageController {
             if (!step.withoutPainting) {
                 if (this.preStep && step.paintingFadeOut) {
                     this.interactive = false;
-                    targetActor.visibile = false;
+                    targetActor.visible = false;
                     this.dialogController.hideDialogueAll();
 
                     this.paintingFadeOut(this.preStep, step, ()=>{
                         this.interactive = true;
-                        targetActor.visibile = true;
+                        targetActor.visible = true;
                         this.dialogController.loadDialogueAll();
                     });
                 }
@@ -420,7 +429,8 @@ export default class StageController {
 
                     if (this.preStep && (this.preStep.side == step.side)) {
                         if (step.side != ACTOR_SIDE.CENTER) {
-                            targetActor.visible = true;
+                            let [,,,target] = this.getTargetActor(side);
+                            target.visible = true;
                             return;
                         }
                     }
@@ -455,7 +465,7 @@ export default class StageController {
             if (step.actorName) {
                 let nameTint = (step.nameColor) ? PIXI.utils.string2hex(step.nameColor) : 0xffffff;
                 targetNameText.tint = nameTint;
-                targetNameText.text = name;
+                targetNameText.text = step.actorName;
             }
         }
 
@@ -608,8 +618,8 @@ export default class StageController {
         }
     }
 
-    fadeOut(type, time, callback = ()=>{}) {
-        var target = type == 1 ? this.viewController.curtain : [this.viewController.bg1,this.viewController.bg2];
+    fadeOut(type, time, callback) {
+        var target = (type == 1) ? this.viewController.curtain : [this.viewController.bg1,this.viewController.bg2];
         this.inFadeOut = true;
 
         gsap.to(target, time, {alpha: 0, onComplete: ()=>{
@@ -619,18 +629,18 @@ export default class StageController {
             }
         }});
         
-        if (this.dialogController.aside_text1.visibile)
+        if (this.dialogController.aside_text1.visible)
             gsap.to(this.dialogController.aside_text1, time, {alpha: 0});
-        if (this.dialogController.aside_text2.visibile)
+        if (this.dialogController.aside_text2.visible)
             gsap.to(this.dialogController.aside_text2, time, {alpha: 0});
 
-        if (this.dialogController.dialogue.visibile) {
+        if (this.dialogController.dialogue.visible) {
             this.dialogController.hideDialogueAll();
             this.actorController.hideAll();
         }
     }
 
-    flashin(step, callback = ()=>{}) {
+    flashin(step, callback) {
         this.dialogController.content.text = '';
         var target = this.viewController.flash;
         this.inflasin = true;
@@ -644,7 +654,7 @@ export default class StageController {
         }});
     }
 
-    flashout(step, callback = ()=>{}) {
+    flashout(step, callback) {
         var target = this.viewController.flash;
         this.inflashout = true;
 
@@ -660,8 +670,8 @@ export default class StageController {
     setFade(actor, from, to, time) {
         actor.tint = 0xffffff;
 
-//         if (gsap.isTweening(actor))
-//             gsap.killTweensOf(actor);
+        //if (gsap.isTweening(actor))
+        //    gsap.killTweensOf(actor);
 
         this.interactive = false;
         gsap.fromTo(actor, time, {pixi:{tint: PIXI.utils.rgb2hex([from,from,from])}}, {pixi:{tint: PIXI.utils.rgb2hex([to,to,to]), onComplete: ()=>{
@@ -681,37 +691,41 @@ export default class StageController {
         //let scale = preStep.actorScale || 1;
         //let dir = (preStep.dir && preStep.dir < 0) ? -1 : 1;
         //console.log(scale, dir, dir*scale);
-        let [,,fadeTarget] = this.getTargetActor(preStep.side);
+        let [,,fadeTarget,] = this.getTargetActor(preStep.side);
         let local_x = fadeTarget.x;
-        fadeTarget.visibile = true;
+        fadeTarget.visible = true;
 
         let targetSide = step.paintingFadeOut.side;
         let time = step.paintingFadeOut.time;
-        let [,,target] = this.getTargetActor(targetSide);
+        let [,,target,] = this.getTargetActor(targetSide);
 
+        this.setFade(target, 1, settings.alpha || DEFAULT_PAINT_ALPHA, 0);
         gsap.to(fadeTarget, time, {x: target.x, onComplete: ()=>{
             if (callback) callback();
-            fadeTarget.visibile = false;
+            fadeTarget.visible = false;
+            target.visible = true;
             fadeTarget.x = local_x;
         }});
         this.setFade(fadeTarget, 1, settings.alpha || DEFAULT_PAINT_ALPHA, time);
     }
 
     getTargetActor(side) {
-        let targetName, targetNameText, targetActor;
+        let targetName, targetNameText, targetActor, oppositeActor;
         if (side == ACTOR_SIDE.LEFT) {
             targetName = this.dialogController.name_left;
             targetNameText = this.dialogController.name_left_text;
             targetActor = this.actorController.actor_left;
+            oppositeActor = this.actorController.actor_right;
         } else if (side == ACTOR_SIDE.RIGHT) {
             targetName = this.dialogController.name_right;
             targetNameText = this.dialogController.name_right_text;
             targetActor = this.actorController.actor_right;
+            oppositeActor = this.actorController.actor_left;
         } else if (side == ACTOR_SIDE.CENTER) {
             targetName = this.dialogController.name_left;
             targetNameText = this.dialogController.name_left_text;
             targetActor = this.actorController.actor_middle;
         }
-        return [targetName, targetNameText, targetActor];
+        return [targetName, targetNameText, targetActor, oppositeActor];
     }
 } 
