@@ -33,7 +33,7 @@ export default class StageController {
             this.dialogController = new DialogController(this.story);
             this.viewController = new ViewController(this.story);
 
-            this.interactive = true;
+            this.interactive = false;
             this.inFadeOut = false;
             this.inflashin = false;
             this.inflashout = false;
@@ -59,7 +59,7 @@ export default class StageController {
     }
 
     play(story) {
-        var stop = false;
+        let stop = false;
         this.interactive = true;
 
         this.dialogController.aside_sign_date.text = '';
@@ -153,9 +153,7 @@ export default class StageController {
 
                     if (step.soundeffect) {
                         if (step.seDelay) {
-                            
                         } else {
-                            
                         }
                     }
 
@@ -212,12 +210,16 @@ export default class StageController {
         it.next();
     }
     
-    stop(callback = ()=>{}) {
+    stop(callback) {
+        this.interactive = false;
         this.inFadeOut = false;
         this.inflashin = false;
         this.inflashout = false;
         this.occlusion = false;
+        this.blankScreen = false;
         this.preBg = null;
+        this.preStep = null;
+        this.targetActor = null;
 
         this.viewController.hideAll();
         this.dialogController.hideDialogueAll();
