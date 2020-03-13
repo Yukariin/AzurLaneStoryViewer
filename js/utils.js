@@ -1,10 +1,18 @@
+import NameCode from './NameCode';
 import SkinConfig from './SkinConfig';
+
+export function getName(desc, code) {
+    return (desc || '').replace(/{namecode:(\d+)}/, (match, id) => {
+        let config = NameCode[id];
+        if (config)
+            return (code) ? config.code : config.name;
+    });
+}
 
 export function getNameAndPainting(step) {
     let name = '';
     let painting = '';
     let actor = step.actor;
-    console.log(actor);
 
     if (!actor) {
         // do nothing
@@ -20,7 +28,7 @@ export function getNameAndPainting(step) {
     }
 
     if (step.actorName)
-        name = step.actorName;
+        name = getName(step.actorName);
 
     return [name, painting];
 }
