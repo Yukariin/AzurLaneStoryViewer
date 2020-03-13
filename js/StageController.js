@@ -5,7 +5,7 @@ import * as PIXI from 'pixi.js';
 import ActorController from './ActorController';
 import DialogController from './DialogController';
 import ViewController from './ViewController';
-import { getNameAndPainting } from './utils';
+import { getName, getNameAndPainting } from './utils';
 
 const STORY_MODE = {
     ASIDE: 1,
@@ -75,7 +75,7 @@ export default class StageController {
                     stop = false;
                     let next = true;
                     this.viewController.hideFlash();
-                    let mode = step.mode || story.mode;
+                    let mode = step.mode || story.mode || story.type;
                     if (mode == STORY_MODE.ASIDE) {
                         if (step.flashout) {
                             this.flashout(step, () => {
@@ -421,18 +421,17 @@ export default class StageController {
                 let loadPainting = () => {
                     let tex = this.story.assetloader.resources[painting].texture;
                     this.actorController.load(targetActor, tex);
+                    // TODO: load face
                     // TODO: implement shadow
 
 //                     let scale = step.actorScale || 1;
 //                     let dir = (step.dir && step.dir < 0) ? -1 : 1;
 //                     console.log(scale, dir, dir*scale);
 
-                    if (this.preStep && (this.preStep.side == step.side)) {
-                        if (step.side != ACTOR_SIDE.CENTER) {
-                            let [,,,target] = this.getTargetActor(side);
-                            target.visible = true;
-                            return;
-                        }
+                    if (this.preStep && (this.preStep.side == step.side) && (step.side != ACTOR_SIDE.CENTER)) {
+                        let [,,,target] = this.getTargetActor(step.side);
+                        target.visible = true;
+                        return;
                     }
 
                     let alpha = settings.alpha || DEFAULT_PAINT_ALPHA;
@@ -454,7 +453,7 @@ export default class StageController {
                     let y = step.shake.y || 10;
                     let local_x = targetActor.x;
                     let local_y = targetActor.y;
-                    let speed = (step.shake.speed || 1) / (step.shake.number || 1);
+                    let speed = (step.shake.speed || 1);
                     gsap.to(targetActor, speed, {x: local_x+x, y: local_y+y, repeat: step.shake.number || 1, onComplete: ()=>{
                         targetActor.x = local_x;
                         targetActor.y = local_y;
@@ -465,7 +464,7 @@ export default class StageController {
             if (step.actorName) {
                 let nameTint = (step.nameColor) ? PIXI.utils.string2hex(step.nameColor) : 0xffffff;
                 targetNameText.tint = nameTint;
-                targetNameText.text = step.actorName;
+                targetNameText.text = getName(step.actorName);
             }
         }
 
@@ -671,8 +670,8 @@ export default class StageController {
     setFade(actor, from, to, time) {
         actor.tint = 0xffffff;
 
-        //if (gsap.isTweening(actor))
-        //    gsap.killTweensOf(actor);
+        if (gsap.isTweening(actor))
+            gsap.killTweensOf(actor, 'y'); // kill only tweens modifying Y property (shake), but let fading out go
 
         this.interactive = false;
         gsap.fromTo(actor, time, {pixi:{tint: PIXI.utils.rgb2hex([from,from,from])}}, {pixi:{tint: PIXI.utils.rgb2hex([to,to,to]), onComplete: ()=>{
@@ -696,9 +695,13 @@ export default class StageController {
         let local_x = fadeTarget.x;
         fadeTarget.visible = true;
 
-        let targetSide = step.paintingFadeOut.side;
+        let side = step.paintingFadeOut.side;
         let time = step.paintingFadeOut.time;
-        let [,,target,] = this.getTargetActor(targetSide);
+        let [,,target,] = this.getTargetActor(side);
+        let [,painting] = getNameAndPainting(preStep);
+        let tex = this.story.assetloader.resources[painting].texture;
+        this.actorController.load(target, tex);
+        target.visible = false;
 
         this.setFade(target, 1, settings.alpha || DEFAULT_PAINT_ALPHA, 0);
         gsap.to(fadeTarget, time, {x: target.x, onComplete: ()=>{
