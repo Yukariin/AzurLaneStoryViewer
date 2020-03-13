@@ -1,4 +1,4 @@
-import { Application, Loader } from 'pixi.js';
+import * as PIXI from 'pixi.js';
 
 import StageController from './StageController';
 import StoryConfig from './StoryConfig';
@@ -12,13 +12,14 @@ let instance = null;
 export default class Story {
     constructor(element) {
         if (!instance) {
-            this.app = new Application({width: DEFAULT_WIDTH, height: DEFAULT_HEIGHT});
+            PIXI.settings.RENDER_OPTIONS.antialias = true;
+            this.app = new PIXI.Application({width: DEFAULT_WIDTH, height: DEFAULT_HEIGHT});
             this.element = element;
             this.element.appendChild(this.app.view);
             this.app.view.id = 'story-canvas';
             this.app.stage.sortableChildren = true;
 
-            this.assetloader = new Loader();
+            this.assetloader = new PIXI.Loader();
             this.assetloader.add('storyui', 'images/storyui.json')
 
             this.stageController = null;
