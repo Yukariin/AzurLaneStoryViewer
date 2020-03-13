@@ -16,7 +16,7 @@ export default class ViewController {
 
             this.curtain = new Sprite(Texture.WHITE);
             this.curtain.tint = 0x000000;
-            this.curtain.zIndex = 0;
+            this.curtain.zIndex = 0.5;
             this.curtain.width = this.story.app.renderer.width;
             this.curtain.height = this.story.app.renderer.height;
             this.story.app.stage.addChild(this.curtain);
