@@ -493,6 +493,7 @@ export default class StageController {
         this.dialogController.hideAside2();
         this.viewController.hideCurtain();
         this.actorController.hideAll();
+        this.dialogController.loadDialogueAll();
 
         if (step.blackBg) {
             this.viewController.loadCurtain();
@@ -577,8 +578,8 @@ export default class StageController {
                     setTimeout(() => {
                         this.blankScreen = false;
                         this.viewController.hideCurtain();
-                        this.story.element.click();
                         this.dialogController.loadDialogueAll();
+                        this.story.element.click();
                     }, step.blankScreen*1000);
                 } else {
                     this.dialogController.loadDialogueAll();
