@@ -51,7 +51,7 @@ export default class ActorController {
     loadRight(texture) {
         this.actor_right.texture = texture;
         this.actor_right.scale.set(this.story.app.renderer.height / this.actor_right.texture.height);
-        this.actor_right.x = this.story.app.renderer.height + this.actor_left.width*0.3;
+        this.actor_right.x = this.story.app.renderer.height + this.actor_right.width*0.3;
         this.actor_right.visible = true;
     }
 
