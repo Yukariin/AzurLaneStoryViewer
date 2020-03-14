@@ -70,7 +70,9 @@ export default class StageController {
             for (var step of story.scripts) {
                 console.log(step);
 
-                if (stop && !step.compulsory) {
+                if (step.say) {
+                    step.say = getName(step.say);
+                } else if (stop && !step.compulsory) {
                     // do nothing
                 } else{
                     stop = false;
@@ -370,10 +372,11 @@ export default class StageController {
                 {alpha: 0, onComplete: ()=>{
                     this.interactive = true;
                     this.preBg = null;
+                    this.viewController.hideBG();
                 }}
             );
         } else {
-            
+            this.viewController.hideBG();
         }
 
         if (step.bgName) {
