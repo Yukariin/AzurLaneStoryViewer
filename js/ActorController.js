@@ -35,6 +35,10 @@ export default class ActorController {
         return instance;
     }
 
+    get actors() {
+        return [this.actor_left,this.actor_middle,this.actor_right];
+    }
+
     loadLeft(texture) {
         this.actor_left.texture = texture;
         this.actor_left.scale.set(this.story.app.renderer.height / this.actor_left.texture.height);

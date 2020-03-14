@@ -124,7 +124,6 @@ export default class StageController {
                     } else if (step.stopbgm) {
                     }
 
-                    let tl = gsap.timeline();
                     if (step.flash) {
                         let target = this.viewController.flash;
                         target.tint = (step.flash.black) ? 0x000000 : 0xffffff;
@@ -133,11 +132,20 @@ export default class StageController {
                         let dur1 = (step.flash.dur) ? step.flash.dur/2 : step.flash.dur1;
                         let dur2 = (step.flash.dur) ? step.flash.dur/2 : step.flash.dur2;
                         for (let j = 1; j <= step.flash.number; j++) {
-                            tl.fromTo(target, dur1, {alpha: step.flash.alpha[0]}, {alpha: step.flash.alpha[1], delay: (j-1)*step.flash.delay});
-                            tl.fromTo(target, dur2, {alpha: step.flash.alpha[1]}, {alpha: step.flash.alpha[0], delay: step.flash.wait, onComplete: ()=>{
-                                if (j >= step.flash.number)
-                                    this.viewController.hideFlash();
-                            }});
+                            gsap.fromTo(target, dur1, {alpha: step.flash.alpha[0]}, {
+                                alpha: step.flash.alpha[1],
+                                delay: (j)*step.flash.delay,
+                                onComplete: ()=>{
+                                    gsap.fromTo(target, dur2, {alpha: step.flash.alpha[1]}, {
+                                        alpha: step.flash.alpha[0],
+                                        delay: step.flash.wait,
+                                        onComplete: ()=>{
+                                            if (j >= step.flash.number)
+                                                this.viewController.hideFlash();
+                                        }
+                                    });
+                                }
+                            });
                         }
                     }
                     if (step.flashN) {
@@ -146,7 +154,7 @@ export default class StageController {
                         target.tint = (c) ? PIXI.utils.rgb2hex([c[0],c[1],c[2]]) : 0xffffff;
                         this.viewController.loadFlash();
                         for (let v of step.flashN.alpha) {
-                            tl.fromTo(target, v[2], {alpha: v[0]}, {alpha: v[1], delay: (v[3] || 0)});
+                            gsap.fromTo(target, v[2], {alpha: v[0]}, {alpha: v[1], delay: (v[3] || 0)});
                         }
                     }
 
@@ -155,7 +163,7 @@ export default class StageController {
                         let target = [this.dialogController.dialogue];
                         let delay = step.dialogShake.delay || 0;
                         let num = (step.dialogShake.number) ? (step.dialogShake.number*2)-1 : 1;
-                        tl.to(target, step.dialogShake.speed, {x: step.dialogShake.x, delay: delay, repeat: num, yoyo: true, onComplete: ()=>{
+                        gsap.to(target, step.dialogShake.speed, {x: step.dialogShake.x, delay: delay, repeat: num, yoyo: true, onComplete: ()=>{
                             this.interactive = true;
                         }});
                     }
@@ -253,15 +261,14 @@ export default class StageController {
 
         this.interactive = false;
 
-        let tl = gsap.timeline({onComplete: ()=>{ this.interactive = true; }});
-
         let speed = step.bgSpeed || 0.5;
         if (step.bgFade && this.preBg) {
             this.interactive = false;
-            tl.to(
+            gsap.to(
                 [this.viewController.bg1,this.viewController.bg2],
                 speed,
                 {alpha: 0, onComplete: ()=>{
+                    this.interactive = true;
                     this.preBg = null;
                     this.viewController.hideBG();
                 }}
@@ -285,14 +292,13 @@ export default class StageController {
         }
 
         let write = () => {
+            let lastTween;
             let delay = 0;
             for (let aisdeData of step.sequence || []) {
                 delay = aisdeData[1];
-                tl.fromTo(aside_text, step.sequenceSpd || 1, {alpha: 0}, {alpha: 1, delay: delay, onStart: ()=>{
-                    aside_text.text = aisdeData[0];
-                }, onComplete: ()=>{
-                    if (step.autoComplete)
-                        this.story.element.click();
+                lastTween = gsap.fromTo(aside_text, step.sequenceSpd || 1, {alpha: 0}, {alpha: 1, delay: delay, onStart: ()=>{
+                    this.interactive = false;
+                    aside_text.text = getName(aisdeData[0]);
                 }});
             }
 
@@ -302,12 +308,17 @@ export default class StageController {
                 let target = this.dialogController.aside_sign_date;
                 target.text = content;
                 target.alpha = 0;
-                tl.to(target, step.sequenceSpd || 1, {alpha: 1, delay: delay, onComplete: ()=>{
-                    if (step.autoComplete)
-                        this.story.element.click();
-                }});
+                lastTween = gsap.fromTo(target, step.sequenceSpd || 1, {alpha: 0}, {alpha: 1, delay: delay});
             } else {
                 this.dialogController.aside_sign_date.text = '';
+            }
+
+            if (lastTween) {
+                lastTween.eventCallback('onComplete',  ()=>{
+                    this.interactive = true;
+                    if (step.autoComplete)
+                        this.story.element.click();
+                });
             }
         };
 
@@ -380,6 +391,12 @@ export default class StageController {
 
         let side = step.side || 0;
         let [targetName, targetNameText, targetActor,] = this.getTargetActor(side);
+
+        this.actorController.actors.forEach((actor) => {
+            if (gsap.isTweening(actor))
+                gsap.killTweensOf(actor, 'y'); // kill only tweens modifying Y property (shake), but let fading out go
+            actor.visible = false;
+        });
 
         this.actorController.actor_left.visible = (step.actor && (targetActor === this.actorController.actor_left));
         this.actorController.actor_middle.visible = (step.actor && (targetActor === this.actorController.actor_middle));
@@ -475,10 +492,10 @@ export default class StageController {
                         } else if (v.type == "zoom") {
                             let from = v.from || 0;
                             let to = v.to || 1;
-                            let speed = (v.dur || 1);
+                            let speed = (v.dur || 0);
                             console.log('action zoom');
                             //gsap.to(targetActor, speed, {});
-                            freezeTime = (v.delay || 0) + (v.dur || 0)
+                            freezeTime = (v.delay || 0) + (v.dur || 0);
                         } else if (v.type == "rotate") {
                             let speed = (v.dur || 1);
                             let num = (v.number) ? (v.number*4)-1 : 3;
@@ -490,6 +507,7 @@ export default class StageController {
                             let local_x = targetActor.x;
                             let local_y = targetActor.y;
                             let speed = (v.dur || 1);
+                            console.log('action move');
                             //gsap.to(targetActor, speed, {x: local_x+x, y: local_y+y, delay: (v.delay || 0)});
                             freezeTime = (v.delay || 0) + (v.dur || 1);
                         }
@@ -578,7 +596,7 @@ export default class StageController {
             bg.alpha = 1;
             bg.tint = 0xffffff;
 
-            if (this.preBg && this.preBg != step.bgName) {
+            if (this.preBg && (this.preBg != step.bgName)) {
                 this.interactive = false;
                 bgFade(1, 0, speed, 0, ()=>{
                     if (step.useBg2) {
@@ -650,7 +668,7 @@ export default class StageController {
         for (let v of effects) {
             if (v.name) {
                 gsap.delayedCall(v.delay || 0, ()=>{
-                    console.warn('Unknown effect '+v);
+                    console.warn('Unknown effect', v);
                 });
             }
         }
