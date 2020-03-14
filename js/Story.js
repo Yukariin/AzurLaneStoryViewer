@@ -47,32 +47,36 @@ export default class Story {
     }
 
     load(storyID, locale) {
-        this.assetloader.add(storyID, `story/${locale}/${storyID}.json`)
-        this.assetloader.load((loader, resources) => {
-            let story = resources[storyID].data;
+        if (!(storyID in this.assetloader.resources)) {
+            this.assetloader.add(storyID, `story/${locale}/${storyID}.json`)
+            this.assetloader.load((loader, resources) => {
+                let story = resources[storyID].data;
 
-            story.scripts.forEach((step) => {
-                if (step.bgName && !(step.bgName in resources)) {
-                    this.assetloader.add(step.bgName, `images/bg/${step.bgName}.png`);
-                }
-                if (step.subBgName && !(step.subBgName in resources)) {
-                    this.assetloader.add(step.subBgName.name, `images/bg/${step.subBgName.name}.png`);
-                }
-
-                if ((step.mode || story.mode) == 2 && step.actor && !step.withoutPainting) {
-                    let [,actorName] = getNameAndPainting(step);
-                    if (!(actorName in resources)) {
-                        this.assetloader.add(actorName, `images/painting/${actorName}.png`);
+                story.scripts.forEach((step) => {
+                    if (step.bgName && !(step.bgName in resources)) {
+                        this.assetloader.add(step.bgName, `images/bg/${step.bgName}.png`);
                     }
-                }
-            });
+                    if (step.subBgName && !(step.subBgName in resources)) {
+                        this.assetloader.add(step.subBgName.name, `images/bg/${step.subBgName.name}.png`);
+                    }
 
-            this.assetloader.load(this.loadComplete.bind(this, storyID))
+                    if ((step.mode || story.mode) == 2 && step.actor && !step.withoutPainting) {
+                        let [,actorName] = getNameAndPainting(step);
+                        if (!(actorName in resources)) {
+                            this.assetloader.add(actorName, `images/painting/${actorName}.png`);
+                        }
+                    }
+                });
 
-            this.assetloader.onProgress.add((loader, resource) => {
-                console.log(`load progress: ${loader.progress}%`);
+                this.assetloader.load(this.loadComplete.bind(this, storyID))
+
+                this.assetloader.onProgress.add((loader, resource) => {
+                    console.log(`load progress: ${loader.progress}%`);
+                });
             });
-        });
+        } else {
+            this.loadComplete(storyID);
+        }
     }
 
     loadComplete(storyID) {
