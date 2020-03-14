@@ -1,4 +1,4 @@
-import { gsap } from 'gsap';
+import { gsap, Sine } from 'gsap';
 import PixiPlugin from 'gsap/PixiPlugin';
 import * as PIXI from 'pixi.js';
 
@@ -39,6 +39,7 @@ export default class StageController {
             this.inflashout = false;
             this.occlusion = false;
             this.blankScreen = false;
+            this.inAction = false;
             this.preBg = null;
             this.preStep = null;
             this.targetActor = null;
@@ -153,8 +154,8 @@ export default class StageController {
                         this.interactive = false;
                         let target = [this.dialogController.dialogue];
                         let delay = step.dialogShake.delay || 0;
-                        tl.to(target, step.dialogShake.speed, {x: step.dialogShake.x, delay: delay, repeat: step.dialogShake.number, onComplete: ()=>{
-                            this.dialogController.dialogue.x = 0;
+                        let num = (step.dialogShake.number) ? (step.dialogShake.number*2)-1 : 1;
+                        tl.to(target, step.dialogShake.speed, {x: step.dialogShake.x, delay: delay, repeat: num, yoyo: true, onComplete: ()=>{
                             this.interactive = true;
                         }});
                     }
@@ -206,6 +207,7 @@ export default class StageController {
             if (this.inflashout) return;
             if (this.occlusion) return;
             if (this.blankScreen) return;
+            if (this.inAction) return;
 
             if (this.inFadeOut) {
                 this.inFadeOut = false;
@@ -226,6 +228,7 @@ export default class StageController {
         this.inflashout = false;
         this.occlusion = false;
         this.blankScreen = false;
+        this.inAction = false;
         this.preBg = null;
         this.preStep = null;
         this.targetActor = null;
@@ -454,10 +457,45 @@ export default class StageController {
                     let local_x = targetActor.x;
                     let local_y = targetActor.y;
                     let speed = (step.shake.speed || 1);
-                    gsap.to(targetActor, speed, {x: local_x+x, y: local_y+y, repeat: step.shake.number || 1, onComplete: ()=>{
-                        targetActor.x = local_x;
-                        targetActor.y = local_y;
-                    }});
+                    let num = (step.shake.number) ? (step.shake.number*2)-1 : 1;
+                    gsap.to(targetActor, speed, {x: local_x+x, y: local_y+y, repeat: num, yoyo: true, ease: Sine.easeInOut});
+                }
+                if (step.action) {
+                    let freezeTime = 0;
+                    for (let v of step.action) {
+                        if (v.type == "shake") {
+                            let x = v.x || 0;
+                            let y = v.y || 10;
+                            let local_x = targetActor.x;
+                            let local_y = targetActor.y;
+                            let speed = (v.dur || 1);
+                            let num = (v.number) ? (v.number*2)-1 : 1;
+                            gsap.to(targetActor, speed, {x: local_x+x, y: local_y+y, delay: (v.delay || 0), repeat: num, yoyo: true, ease: Sine.easeInOut});
+                            freezeTime = (v.delay || 0) + (v.dur || 1)*(num+1);
+                        } else if (v.type == "zoom") {
+                            let from = v.from || 0;
+                            let to = v.to || 1;
+                            let speed = (v.dur || 1);
+                            console.log('action zoom');
+                            //gsap.to(targetActor, speed, {});
+                            freezeTime = (v.delay || 0) + (v.dur || 0)
+                        } else if (v.type == "rotate") {
+                            let speed = (v.dur || 1);
+                            let num = (v.number) ? (v.number*4)-1 : 3;
+                            gsap.to(targetActor, speed, {angle: v.value, delay: (v.delay || 0), repeat: num, yoyo: true});
+                            freezeTime = (v.delay || 0) + (v.dur || 1)*(num+1);
+                        } else if (v.type == "move") {
+                            let x = v.x || 0;
+                            let y = v.y || 0;
+                            let local_x = targetActor.x;
+                            let local_y = targetActor.y;
+                            let speed = (v.dur || 1);
+                            //gsap.to(targetActor, speed, {x: local_x+x, y: local_y+y, delay: (v.delay || 0)});
+                            freezeTime = (v.delay || 0) + (v.dur || 1);
+                        }
+                    }
+                    this.inAction = true;
+                    gsap.delayedCall(freezeTime, ()=>{ this.inAction = false; });
                 }
             }
         } else {
