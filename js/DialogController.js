@@ -77,7 +77,7 @@ export default class DialogController {
             this.aside_sign_date.anchor.set(0, 0.5);
             this.aside_sign_date.x = 0;
             this.aside_sign_date.y = this.story.app.renderer.height/2;
-            this.aside_sign_date.visible = false;
+            //this.aside_sign_date.visible = false;
             console.log(this.aside_sign_date);
             this.story.app.stage.addChild(this.aside_sign_date);
             
