@@ -44,6 +44,9 @@ export default class StageController {
             this.preStep = null;
             this.targetActor = null;
 
+            this.storyQueue = [];
+            this.isPlaying = false;
+
             PixiPlugin.registerPIXI(PIXI);
             gsap.registerPlugin(PixiPlugin);
 
@@ -54,12 +57,16 @@ export default class StageController {
     }
 
     load() {
-        this.dialogController.loadDialog();
-
         this.viewController.hideSubBG();
     }
 
     play(story) {
+        if (this.isPlaying) {
+            this.storyQueue.push(story);
+            return;
+        }
+        this.isPlaying = true;
+
         let stop = false;
         this.interactive = true;
 
@@ -70,9 +77,9 @@ export default class StageController {
             for (var step of story.scripts) {
                 console.log(step);
 
-                if (step.say) {
+                if (step.say)
                     step.say = getName(step.say);
-                } else if (stop && !step.compulsory) {
+                if (stop && !step.compulsory) {
                     // do nothing
                 } else{
                     stop = false;
@@ -243,6 +250,8 @@ export default class StageController {
         this.preStep = null;
         this.targetActor = null;
 
+        this.isPlaying = false;
+
         this.viewController.hideAll();
         this.dialogController.hideDialogueAll();
         this.actorController.hideAll();
@@ -251,6 +260,11 @@ export default class StageController {
 
         if (callback)
             callback();
+
+        if (this.storyQueue.length > 0) {
+            let nextStory = this.storyQueue.pop();
+            if (nextStory) this.play(nextStory);
+        }
     }
 
     initAside(step) {

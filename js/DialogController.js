@@ -115,8 +115,6 @@ export default class DialogController {
         return instance;
     }
 
-    loadDialog() {}
-
     loadDialogue() {
         this.dialogue.visible = true;
         this.dialogue_cache = this.dialogue.visible;
