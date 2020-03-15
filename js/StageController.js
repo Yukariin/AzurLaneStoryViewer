@@ -262,7 +262,7 @@ export default class StageController {
             callback();
 
         if (this.storyQueue.length > 0) {
-            let nextStory = this.storyQueue.pop();
+            let nextStory = this.storyQueue.shift();
             if (nextStory) this.play(nextStory);
         }
     }
