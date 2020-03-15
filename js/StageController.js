@@ -270,7 +270,7 @@ export default class StageController {
     initAside(step) {
         let aside_text = (!step.asideType || step.asideType == 1) ? this.dialogController.aside_text1 : this.dialogController.aside_text2
         aside_text.visible = true;
-        
+
         this.viewController.hideSubBG();
         this.viewController.loadCurtain();
         this.viewController.curtain.alpha = step.alpha || 1;
@@ -312,7 +312,8 @@ export default class StageController {
             let delay = 0;
             for (let aisdeData of step.sequence || []) {
                 delay = aisdeData[1];
-                lastTween = gsap.fromTo(aside_text, step.sequenceSpd || 1, {alpha: 0}, {alpha: 1, delay: delay, onStart: ()=>{
+                aside_text.alpha = 0;
+                lastTween = gsap.to(aside_text, step.sequenceSpd || 1, {alpha: 1, delay: delay, onStart: ()=>{
                     this.interactive = false;
                     aside_text.text = getName(aisdeData[0]);
                 }});
@@ -324,7 +325,7 @@ export default class StageController {
                 let target = this.dialogController.aside_sign_date;
                 target.text = content;
                 target.alpha = 0;
-                lastTween = gsap.fromTo(target, step.sequenceSpd || 1, {alpha: 0}, {alpha: 1, delay: delay});
+                lastTween = gsap.to(target, step.sequenceSpd || 1, {alpha: 1, delay: delay});
             } else {
                 this.dialogController.aside_sign_date.text = '';
             }
@@ -348,6 +349,7 @@ export default class StageController {
             this.interactive = true;
 
         if (step.bgName) {
+            this.viewController.hideCurtain();
             this.viewController.hideBG();
             let tex = this.story.assetloader.resources[step.bgName].texture;
             let bg = (step.useBg2) ? this.viewController.bg2 : this.viewController.bg1;
@@ -461,9 +463,10 @@ export default class StageController {
                     // TODO: load face
                     // TODO: implement shadow
 
-//                     let scale = step.actorScale || 1;
-//                     let dir = (step.dir && step.dir < 0) ? -1 : 1;
-//                     console.log(scale, dir, dir*scale);
+                    let scale = step.actorScale || 1;
+                    let dir = (step.dir && step.dir < 0) ? -1 : 1;
+                    targetActor.scale.x *= dir*scale
+                    targetActor.scale.y *= scale;
 
                     if (this.preStep && (this.preStep.side == step.side) && (step.side != ACTOR_SIDE.CENTER)) {
                         let [,,,target] = this.getTargetActor(step.side);
@@ -607,6 +610,8 @@ export default class StageController {
         let speed = step.bgSpeed || 0.5;
         if (step.bgName) {
             this.viewController.hideSubBG();
+            this.viewController.hideCurtain();
+            this.viewController.hideBG();
 
             let tex = this.story.assetloader.resources[step.bgName].texture;
             let bg = (step.useBg2) ? this.viewController.bg2 : this.viewController.bg1;
@@ -761,19 +766,20 @@ export default class StageController {
             }
         }
 
-        //let scale = preStep.actorScale || 1;
-        //let dir = (preStep.dir && preStep.dir < 0) ? -1 : 1;
-        //console.log(scale, dir, dir*scale);
         let [,,fadeTarget,] = this.getTargetActor(preStep.side);
         let local_x = fadeTarget.x;
         fadeTarget.visible = true;
 
         let side = step.paintingFadeOut.side;
         let time = step.paintingFadeOut.time;
+        let scale = preStep.actorScale || 1;
+        let dir = (preStep.dir && preStep.dir < 0) ? -1 : 1;
         let [,,target,] = this.getTargetActor(side);
         let [,painting] = getNameAndPainting(preStep);
         let tex = this.story.assetloader.resources[painting].texture;
         this.actorController.load(target, tex);
+        target.scale.x *= dir*scale
+        target.scale.y *= scale;
         target.visible = false;
 
         this.setFade(target, 1, settings.alpha || DEFAULT_PAINT_ALPHA, 0);
