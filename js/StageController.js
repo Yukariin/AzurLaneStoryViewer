@@ -435,12 +435,17 @@ export default class StageController {
             this.dialogController.hideNameRightText();
         }
 
-        if (step.actorPosition) {}
+        if (step.actorPosition) {
+            let x = step.actorPosition.x || 0;
+            let y = step.actorPosition.y || 0;
+            //targetActor.x = targetActor.x + x;
+            //targetActor.y = targetActor.y + y;
+        }
 
         if ('actor' in step) {
             let settings = step.painting || {};
             let nameTint = (step.nameColor) ? PIXI.utils.string2hex(step.nameColor) : 0xffffff;
-            let [name,painting] = getNameAndPainting(step);
+            let [name, painting] = getNameAndPainting(step);
             targetNameText.tint = nameTint;
             targetNameText.text = name;
 
@@ -510,11 +515,12 @@ export default class StageController {
                             gsap.to(targetActor, speed, {x: local_x+x, y: local_y+y, delay: (v.delay || 0), repeat: num, yoyo: true, ease: Sine.easeInOut});
                             freezeTime = (v.delay || 0) + (v.dur || 1)*(num+1);
                         } else if (v.type == "zoom") {
-                            let from = v.from || 0;
-                            let to = v.to || 1;
+                            let from = v.from || [0,0,0];
+                            let to = v.to || [1,1,1];
                             let speed = (v.dur || 0);
-                            console.log('action zoom');
-                            //gsap.to(targetActor, speed, {});
+                            let local_x = targetActor.scale.x;
+                            let local_y = targetActor.scale.y;
+                            gsap.fromTo(targetActor, speed, {pixi:{scaleX: local_x*from[0], scaleY: local_y*from[1]}}, {pixi:{scaleX: local_x*to[0], scaleY: local_y*to[1]}});
                             freezeTime = (v.delay || 0) + (v.dur || 0);
                         } else if (v.type == "rotate") {
                             let speed = (v.dur || 1);

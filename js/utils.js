@@ -14,7 +14,7 @@ export function getNameAndPainting(step) {
     let painting = '';
     let actor = step.actor;
 
-    if (!actor) {
+    if (typeof actor === 'undefined') {
         // do nothing
     } else if (actor > 0) {
         name = SkinConfig[actor].name;
@@ -23,8 +23,8 @@ export function getNameAndPainting(step) {
         name = '指揮官';
         painting = 'unknown';
     } else if (actor == -1) {
-        name = '指揮官';
-        // painting flagship?
+        // secretary name?
+        // secretary painting?
     }
 
     if (step.actorName)
