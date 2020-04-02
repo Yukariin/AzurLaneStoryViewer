@@ -1,1 +1,1 @@
-{"id":"DAFUWENGEVENT5-1","scripts":[{"say":"波に流されてきたパーツを発見した！「パーツT3*2」を手に入れた！","typewriter":{"speed":0.05,"speedUp":0.01}}],"fadein":1.5,"mode":2,"once":true}
+{"scripts":[{"typewriter":{"speedUp":0.01,"speed":0.05},"say":"波に流されてきたパーツを発見した！「パーツT3*2」を手に入れた！"}],"once":true,"mode":2,"fadein":1.5,"id":"DAFUWENGEVENT5-1"}

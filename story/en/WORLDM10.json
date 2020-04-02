@@ -1,1 +1,1 @@
-{"id":"WORLDM10","mode":2,"once":true,"scripts":[{"side":2,"dir":1,"typewriter":{"speedUp":0.01,"speed":0.05},"say":"测试副本4配置了大量的战斗对象,其实没有AI接管的他们也就是吓一下你"}]}
+{"mode":2,"scripts":[{"dir":1,"side":2,"typewriter":{"speedUp":0.01,"speed":0.05},"say":"测试副本4配置了大量的战斗对象,其实没有AI接管的他们也就是吓一下你"}],"id":"WORLDM10","once":true}

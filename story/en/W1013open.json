@@ -1,1 +1,1 @@
-{"id":"W1013open","mode":2,"once":true,"scripts":[{"side":2,"typewriter":{"speedUp":0.01,"speed":0.05},"say":"某处的机关似乎被激活了。","dir":1,"painting":{"time":1,"alpha":0.3}}]}
+{"mode":2,"scripts":[{"typewriter":{"speedUp":0.01,"speed":0.05},"side":2,"say":"某处的机关似乎被激活了。","dir":1,"painting":{"time":1,"alpha":0.3}}],"id":"W1013open","once":true}

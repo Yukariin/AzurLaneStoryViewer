@@ -1,1 +1,1 @@
-{"id":"DAFUWENGEVENT5-2","scripts":[{"say":"ワシントンの兵装の調整を手伝った！「パーツT3*8」を手に入れた！","typewriter":{"speed":0.05,"speedUp":0.01}}],"fadein":1.5,"mode":2,"once":true}
+{"scripts":[{"typewriter":{"speedUp":0.01,"speed":0.05},"say":"ワシントンの兵装の調整を手伝った！「パーツT3*8」を手に入れた！"}],"once":true,"mode":2,"fadein":1.5,"id":"DAFUWENGEVENT5-2"}

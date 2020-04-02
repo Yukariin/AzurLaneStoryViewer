@@ -1,1 +1,1 @@
-{"fadein":1.5,"id":"DAFUWENGEVENT3-3","mode":2,"once":true,"scripts":[{"typewriter":{"speedUp":0.01,"speed":0.05},"say":"Your act at a party was very well received! Collect 5 Royal Gourmet!"}]}
+{"scripts":[{"typewriter":{"speedUp":0.01,"speed":0.05},"say":"Your act at a party was very well received! Collect 5 Royal Gourmet!"}],"once":true,"mode":2,"fadein":1.5,"id":"DAFUWENGEVENT3-3"}

@@ -1,1 +1,1 @@
-{"id":"HOLOZHUANPAN1","scripts":[{"painting":{"time":1,"alpha":0.3},"typewriter":{"speed":0.05,"speedUp":0.01},"side":2,"dir":1,"say":"おー、指揮官さん調子いいですね…ではちょっと休憩して、お茶でも飲みましょう","actor":10500010,"nameColor":"#92fc63"}],"fadeOut":1.5,"fadeType":1,"fadein":1.5,"mode":2,"once":true}
+{"fadeType":1,"once":true,"scripts":[{"typewriter":{"speedUp":0.01,"speed":0.05},"side":2,"say":"おー、指揮官さん調子いいですね…ではちょっと休憩して、お茶でも飲みましょう","actor":10500010,"painting":{"time":1,"alpha":0.3},"dir":1,"nameColor":"#92fc63"}],"mode":2,"fadein":1.5,"id":"HOLOZHUANPAN1","fadeOut":1.5}

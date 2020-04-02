@@ -1,1 +1,1 @@
-{"id":"WORLDM9","mode":2,"once":true,"scripts":[{"side":2,"dir":1,"typewriter":{"speedUp":0.01,"speed":0.05},"say":"对不起本地图非常唠嗑,你触发了一条5%的稀有唠嗑记录"}]}
+{"mode":2,"scripts":[{"dir":1,"side":2,"typewriter":{"speedUp":0.01,"speed":0.05},"say":"对不起本地图非常唠嗑,你触发了一条5%的稀有唠嗑记录"}],"id":"WORLDM9","once":true}

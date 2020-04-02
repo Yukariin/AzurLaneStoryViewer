@@ -1,1 +1,1 @@
-{"id":"WORLDW2","mode":2,"once":true,"scripts":[{"side":2,"dir":1,"typewriter":{"speedUp":0.01,"speed":0.05},"say":"欢迎来到地图2,这个地图里配置了很多空宝箱"}]}
+{"mode":2,"scripts":[{"dir":1,"side":2,"typewriter":{"speedUp":0.01,"speed":0.05},"say":"欢迎来到地图2,这个地图里配置了很多空宝箱"}],"id":"WORLDW2","once":true}

@@ -1,1 +1,1 @@
-{"id":"S006","scripts":[{"shake":{"speed":2,"number":3},"side":2,"say":"すごい火力ね。だが…私の前では無力よ！","actorName":"ビスマルク??","actor":900009,"nameColor":"#ff0000"}],"mode":2}
+{"mode":2,"id":"S006","scripts":[{"side":2,"say":"すごい火力ね。だが…私の前では無力よ！","actor":900009,"shake":{"number":3,"speed":2},"actorName":"ビスマルク??","nameColor":"#ff0000"}]}

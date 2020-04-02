@@ -1,1 +1,1 @@
-{"id":"W170600","mode":2,"once":true,"scripts":[{"side":2,"typewriter":{"speedUp":0.01,"speed":0.05},"say":"这个机关似乎需要两个舰队同时触发……","dir":1,"painting":{"time":1,"alpha":0.3}}]}
+{"mode":2,"scripts":[{"typewriter":{"speedUp":0.01,"speed":0.05},"side":2,"say":"这个机关似乎需要两个舰队同时触发……","dir":1,"painting":{"time":1,"alpha":0.3}}],"id":"W170600","once":true}

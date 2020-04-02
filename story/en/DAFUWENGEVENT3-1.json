@@ -1,1 +1,1 @@
-{"fadein":1.5,"id":"DAFUWENGEVENT3-1","mode":2,"once":true,"scripts":[{"typewriter":{"speedUp":0.01,"speed":0.05},"say":"You discovered San Diego buried in the sand by the beach! Collect 5 Boiled Dumplings!"}]}
+{"scripts":[{"typewriter":{"speedUp":0.01,"speed":0.05},"say":"You discovered San Diego buried in the sand by the beach! Collect 5 Boiled Dumplings!"}],"once":true,"mode":2,"fadein":1.5,"id":"DAFUWENGEVENT3-1"}

@@ -1,1 +1,1 @@
-{"id":"AKASHI64","scripts":[{"painting":{"time":1,"alpha":0.3},"side":2,"dir":-1,"say":"「強襲作戦」にゃ！敵を全部倒せばいいにゃ！","actor":312010,"typewriter":{"speed":0.05,"speedUp":0.01}}],"mode":2,"once":true}
+{"mode":2,"scripts":[{"typewriter":{"speedUp":0.01,"speed":0.05},"side":2,"say":"「強襲作戦」にゃ！敵を全部倒せばいいにゃ！","actor":312010,"painting":{"time":1,"alpha":0.3},"dir":-1}],"id":"AKASHI64","once":true}

@@ -1,1 +1,1 @@
-{"fadein":1.5,"continueBgm":true,"id":"SANLI00","fadeType":1,"mode":2,"fadeOut":1.5,"scripts":[{"sequence":[["",0.2]],"mode":1,"bgm":"story-6","signDate":["Coordinates: 35.0????,17?,0????95 - Mirror Sea",0.2,[967,-685]]}]}
+{"fadeType":1,"id":"SANLI00","scripts":[{"mode":1,"sequence":[["",0.2]],"signDate":["Coordinates: 35.0????,17?,0????95 - Mirror Sea",0.2,[967,-685]],"bgm":"story-6"}],"mode":2,"continueBgm":true,"fadein":1.5,"fadeOut":1.5}

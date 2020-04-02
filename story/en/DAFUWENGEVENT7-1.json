@@ -1,1 +1,1 @@
-{"fadein":1.5,"id":"DAFUWENGEVENT7-1","mode":2,"once":true,"scripts":[{"typewriter":{"speedUp":0.01,"speed":0.05},"say":"You found a souvenir while inspecting the docks! Collect 1 Quick Finisher!"}]}
+{"scripts":[{"typewriter":{"speedUp":0.01,"speed":0.05},"say":"You found a souvenir while inspecting the docks! Collect 1 Quick Finisher!"}],"once":true,"mode":2,"fadein":1.5,"id":"DAFUWENGEVENT7-1"}

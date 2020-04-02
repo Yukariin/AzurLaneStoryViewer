@@ -1,1 +1,1 @@
-{"fadein":1.5,"id":"DAFUWENGEVENT2-2","mode":2,"once":true,"scripts":[{"typewriter":{"speedUp":0.01,"speed":0.05},"say":"You received supplies from a ship you sent on a commission! Collect 50 Oil!"}]}
+{"scripts":[{"typewriter":{"speedUp":0.01,"speed":0.05},"say":"You received supplies from a ship you sent on a commission! Collect 50 Oil!"}],"once":true,"mode":2,"fadein":1.5,"id":"DAFUWENGEVENT2-2"}

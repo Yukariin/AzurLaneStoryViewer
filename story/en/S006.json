@@ -1,1 +1,1 @@
-{"id":"S006","mode":2,"scripts":[{"side":2,"shake":{"number":3,"speed":2},"nameColor":"#ff0000","say":"You've got quite the firepower, but it's useless against me!","actorName":"Bismarck??","actor":900009}]}
+{"mode":2,"id":"S006","scripts":[{"side":2,"say":"You've got quite the firepower, but it's useless against me!","actor":900009,"shake":{"number":3,"speed":2},"actorName":"Bismarck??","nameColor":"#ff0000"}]}
