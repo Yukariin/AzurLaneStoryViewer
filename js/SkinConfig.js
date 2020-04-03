@@ -3,6 +3,10 @@ export const SkinConfig = {
         name: "汎用型ブリ",
         painting: "gin"
     },
+    100001: {
+        name: "汎用型強化兵装（工作用）＋α",
+        painting: "gin_2"
+    },
     100010: {
         name: "試作型ブリMKII",
         painting: "kin"
@@ -259,6 +263,10 @@ export const SkinConfig = {
         name: "華麗なるスピードスター",
         painting: "beiqi_2"
     },
+    101352: {
+        name: "絢爛なるスポーツスター",
+        painting: "beiqi_3"
+    },
     101360: {
         name: "ホビー",
         painting: "huobi"
@@ -318,6 +326,14 @@ export const SkinConfig = {
     101431: {
         name: "新春のラッキースター！",
         painting: "haerxibaoweier_3"
+    },
+    101440: {
+        name: "クーパー",
+        painting: "kubo"
+    },
+    101441: {
+        name: "烈日のテニスバトル",
+        painting: "kubo_2"
     },
     102010: {
         name: "オマハ",
@@ -507,6 +523,22 @@ export const SkinConfig = {
         name: "麗人ギャング",
         painting: "biluokexi_2"
     },
+    102260: {
+        name: "リノ",
+        painting: "linuo"
+    },
+    102261: {
+        name: "波濤のチアリーダー",
+        painting: "linuo_2"
+    },
+    102270: {
+        name: "マーブルヘッド",
+        painting: "mabuerheide"
+    },
+    102271: {
+        name: "ボクシングギャル",
+        painting: "mabuerheide_2"
+    },
     10300010: {
         name: "クオン",
         painting: "jiuyuan"
@@ -635,6 +667,10 @@ export const SkinConfig = {
         name: "ワイルドステューデント",
         painting: "mingniabolisi_2"
     },
+    103132: {
+        name: "エクストリームゲームX",
+        painting: "mingniabolisi_3"
+    },
     103160: {
         name: "ボルチモア",
         painting: "baerdimo"
@@ -642,6 +678,18 @@ export const SkinConfig = {
     103161: {
         name: "エースの放課後",
         painting: "baerdimo_2"
+    },
+    103162: {
+        name: "ブラックエース",
+        painting: "baerdimo_4"
+    },
+    103240: {
+        name: "ブレマートン",
+        painting: "bulaimodun"
+    },
+    103241: {
+        name: "熱々トレーニング",
+        painting: "bulaimodun_3"
     },
     10400010: {
         name: "キズナアイ",
@@ -807,6 +855,14 @@ export const SkinConfig = {
         name: "ボーグ改",
         painting: "boge_g"
     },
+    106550: {
+        name: "カサブランカ",
+        painting: "kasabulanka"
+    },
+    106551: {
+        name: "応援団の休憩タイム",
+        painting: "kasabulanka_2"
+    },
     107010: {
         name: "ラングレー",
         painting: "lanli"
@@ -830,6 +886,10 @@ export const SkinConfig = {
     107031: {
         name: "大洋の休日",
         painting: "salatuojia_2"
+    },
+    107032: {
+        name: "異国風衣装",
+        painting: "salatuojia_3"
     },
     107033: {
         name: "バーチャルアイドル",
@@ -903,6 +963,14 @@ export const SkinConfig = {
         name: "ルート66の旅",
         painting: "aisaikesi_3"
     },
+    107110: {
+        name: "イントレピッド",
+        painting: "wuwei"
+    },
+    107111: {
+        name: "恐れなき一投",
+        painting: "wuwei_2"
+    },
     107170: {
         name: "バンカー・ヒル",
         painting: "bangkeshan"
@@ -946,6 +1014,14 @@ export const SkinConfig = {
     108031: {
         name: "コンビニ作戦！",
         painting: "jiqi_2"
+    },
+    108040: {
+        name: "ブルーギル",
+        painting: "lansaiyu"
+    },
+    108041: {
+        name: "見習いエースフィルダー",
+        painting: "lansaiyu_2"
     },
     112010: {
         name: "ヴェスタル",
@@ -1062,6 +1138,10 @@ export const SkinConfig = {
     201104: {
         name: "オファーはメイドさん",
         painting: "xiaotiane_4"
+    },
+    201105: {
+        name: "ロイヤルチアリング",
+        painting: "xiaotiane_6"
     },
     201109: {
         name: "シグニット改",
@@ -1642,6 +1722,10 @@ export const SkinConfig = {
     207032: {
         name: "輝きの舞踏会",
         painting: "guanghui_3"
+    },
+    207033: {
+        name: "異国風衣装",
+        painting: "guanghui_4"
     },
     207035: {
         name: "オトメユリの輝き",
@@ -2879,6 +2963,10 @@ export const SkinConfig = {
         name: "ファーストサマー",
         painting: "Z46_2"
     },
+    401462: {
+        name: "スカベンジハントレス",
+        painting: "Z46_3"
+    },
     402010: {
         name: "ケーニヒスベルク",
         painting: "kenisibao"
@@ -3742,6 +3830,38 @@ export const SkinConfig = {
     900227: {
         name: "？？？",
         painting: "qiye_dark_shadow"
+    },
+    900228: {
+        name: "？？？",
+        painting: "lansaiyu"
+    },
+    900229: {
+        name: "？？？",
+        painting: "unknown5_shadow"
+    },
+    900230: {
+        name: "コンパイラー",
+        painting: "unknown5"
+    },
+    900231: {
+        name: "ピュリファイアー",
+        painting: "unknown3_shadow"
+    },
+    900232: {
+        name: "オブザーバー",
+        painting: "unknown2"
+    },
+    900233: {
+        name: "ピュリファイアー",
+        painting: "unknown3"
+    },
+    900234: {
+        name: "？？？",
+        painting: "unknown5"
+    },
+    900235: {
+        name: "汎用型ブリ",
+        painting: "gin"
     },
     901010: {
         name: "ル・マルス",

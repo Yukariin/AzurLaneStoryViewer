@@ -17,6 +17,7 @@ export function getNameAndPainting(step) {
     if (typeof actor === 'undefined') {
         // do nothing
     } else if (actor > 0) {
+        assert(SkinConfig[actor])
         name = SkinConfig[actor].name;
         painting = SkinConfig[actor].painting;
     } else if (actor == 0) {
